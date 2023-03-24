@@ -16,9 +16,10 @@ namespace BlogPostApp.Models
         // CONTENT
         [Required, MinLength(2)]
         public string Content { get; set; }
-        
+
         // DATE POSTED
-        public DateTime DatePosted { get; set; } = DateTime.Now;
+        [Required]
+        public DateTime DatePosted { get; set; }
         
         // BLOG POST FK
         public int BlogPostId { get; set; }
