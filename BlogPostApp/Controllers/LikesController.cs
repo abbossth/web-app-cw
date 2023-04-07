@@ -10,23 +10,23 @@ using BlogPostApp.Models;
 
 namespace BlogPostApp.Controllers
 {
-    public class CommentsController : Controller
+    public class LikesController : Controller
     {
         private readonly BlogPostDbContext _context;
 
-        public CommentsController(BlogPostDbContext context)
+        public LikesController(BlogPostDbContext context)
         {
             _context = context;
         }
 
-        // GET: Comments
+        // GET: Likes
         public async Task<IActionResult> Index()
         {
-            var blogPostDbContext = _context.Comments.Include(c => c.Post);
+            var blogPostDbContext = _context.Likes.Include(l => l.Post);
             return View(await blogPostDbContext.ToListAsync());
         }
 
-        // GET: Comments/Details/5
+        // GET: Likes/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -34,42 +34,42 @@ namespace BlogPostApp.Controllers
                 return NotFound();
             }
 
-            var comment = await _context.Comments
-                .Include(c => c.Post)
+            var like = await _context.Likes
+                .Include(l => l.Post)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (comment == null)
+            if (like == null)
             {
                 return NotFound();
             }
 
-            return View(comment);
+            return View(like);
         }
 
-        // GET: Comments/Create
+        // GET: Likes/Create
         public IActionResult Create()
         {
             ViewData["PostId"] = new SelectList(_context.Posts, "Id", "Content");
             return View();
         }
 
-        // POST: Comments/Create
+        // POST: Likes/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to, for 
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Content,DatePosted,PostId")] Comment comment)
+        public async Task<IActionResult> Create([Bind("Id,PostId")] Like like)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(comment);
+                _context.Add(like);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["PostId"] = new SelectList(_context.Posts, "Id", "Content", comment.PostId);
-            return View(comment);
+            ViewData["PostId"] = new SelectList(_context.Posts, "Id", "Content", like.PostId);
+            return View(like);
         }
 
-        // GET: Comments/Edit/5
+        // GET: Likes/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -77,23 +77,23 @@ namespace BlogPostApp.Controllers
                 return NotFound();
             }
 
-            var comment = await _context.Comments.FindAsync(id);
-            if (comment == null)
+            var like = await _context.Likes.FindAsync(id);
+            if (like == null)
             {
                 return NotFound();
             }
-            ViewData["PostId"] = new SelectList(_context.Posts, "Id", "Content", comment.PostId);
-            return View(comment);
+            ViewData["PostId"] = new SelectList(_context.Posts, "Id", "Content", like.PostId);
+            return View(like);
         }
 
-        // POST: Comments/Edit/5
+        // POST: Likes/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to, for 
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Content,DatePosted,PostId")] Comment comment)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,PostId")] Like like)
         {
-            if (id != comment.Id)
+            if (id != like.Id)
             {
                 return NotFound();
             }
@@ -102,12 +102,12 @@ namespace BlogPostApp.Controllers
             {
                 try
                 {
-                    _context.Update(comment);
+                    _context.Update(like);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!CommentExists(comment.Id))
+                    if (!LikeExists(like.Id))
                     {
                         return NotFound();
                     }
@@ -118,11 +118,11 @@ namespace BlogPostApp.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["PostId"] = new SelectList(_context.Posts, "Id", "Content", comment.PostId);
-            return View(comment);
+            ViewData["PostId"] = new SelectList(_context.Posts, "Id", "Content", like.PostId);
+            return View(like);
         }
 
-        // GET: Comments/Delete/5
+        // GET: Likes/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -130,31 +130,31 @@ namespace BlogPostApp.Controllers
                 return NotFound();
             }
 
-            var comment = await _context.Comments
-                .Include(c => c.Post)
+            var like = await _context.Likes
+                .Include(l => l.Post)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (comment == null)
+            if (like == null)
             {
                 return NotFound();
             }
 
-            return View(comment);
+            return View(like);
         }
 
-        // POST: Comments/Delete/5
+        // POST: Likes/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var comment = await _context.Comments.FindAsync(id);
-            _context.Comments.Remove(comment);
+            var like = await _context.Likes.FindAsync(id);
+            _context.Likes.Remove(like);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool CommentExists(int id)
+        private bool LikeExists(int id)
         {
-            return _context.Comments.Any(e => e.Id == id);
+            return _context.Likes.Any(e => e.Id == id);
         }
     }
 }

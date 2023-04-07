@@ -10,7 +10,8 @@ namespace BlogPostApp.DAL
             Database.EnsureCreated();
         }
 
-        public DbSet<BlogPost> BlogPosts { get; set; }
+        public DbSet<Post> Posts { get; set; }
         public DbSet<Comment> Comments { get; set; }
+        public DbSet<Like> Likes { get; set; }
     }
 }

@@ -5,7 +5,7 @@ using System.Xml.Linq;
 
 namespace BlogPostApp.Models
 {
-    public class BlogPost
+    public class Post
     {
         // ID
         [Range(0, int.MaxValue)]
@@ -28,6 +28,9 @@ namespace BlogPostApp.Models
 
         // COMMENTS
         public virtual ICollection<Comment> Comments { get; set; }
+        
+        // LIKES
+        public ICollection<Like> Likes { get; set; }
     }
 
     // CATEGORIES THAT WILL BE REPRESENTED AS LIST IN SELECT AND OPTION TAG IN VIEW

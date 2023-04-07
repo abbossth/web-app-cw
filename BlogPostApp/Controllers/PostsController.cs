@@ -7,25 +7,32 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using BlogPostApp.DAL;
 using BlogPostApp.Models;
+using BlogPostApp.Repositories;
 
 namespace BlogPostApp.Controllers
 {
-    public class BlogPostsController : Controller
+    public class PostsController : Controller
     {
         private readonly BlogPostDbContext _context;
+        private readonly IPostRepository _postRepository;
+        private readonly ICommentRepository _commentRepository;
+        private readonly ILikeRepository _likeRepository;
 
-        public BlogPostsController(BlogPostDbContext context)
+        public PostsController(BlogPostDbContext context, IPostRepository postRepository, ICommentRepository commentRepository, ILikeRepository likeRepository)
         {
             _context = context;
+            _postRepository = postRepository;
+            _commentRepository = commentRepository;
+            _likeRepository = likeRepository;
         }
 
-        // GET: BlogPosts
+        // GET: Posts
         public async Task<IActionResult> Index()
         {
-            return View(await _context.BlogPosts.ToListAsync());
+            return View(await _context.Posts.ToListAsync());
         }
 
-        // GET: BlogPosts/Details/5
+        // GET: Posts/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -33,39 +40,46 @@ namespace BlogPostApp.Controllers
                 return NotFound();
             }
 
-            var blogPost = await _context.BlogPosts
+            var comments = _context.Comments.ToList().Where(p => p.PostId == id);
+            var likes = _context.Likes.ToList().Where(l => l.PostId == id);
+            var likesCount = likes.Count() | 0;
+
+            var post = await _context.Posts
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (blogPost == null)
+            if (post == null)
             {
                 return NotFound();
             }
 
-            return View(blogPost);
+            ViewBag.LikesCount = likesCount;
+            ViewBag.comments = comments;
+
+            return View(post);
         }
 
-        // GET: BlogPosts/Create
+        // GET: Posts/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: BlogPosts/Create
+        // POST: Posts/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to, for 
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Title,Content,DatePublished,Categories")] BlogPost blogPost)
+        public async Task<IActionResult> Create([Bind("Id,Title,Content,DatePublished,Categories")] Post post)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(blogPost);
+                _context.Add(post);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(blogPost);
+            return View(post);
         }
 
-        // GET: BlogPosts/Edit/5
+        // GET: Posts/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -73,22 +87,22 @@ namespace BlogPostApp.Controllers
                 return NotFound();
             }
 
-            var blogPost = await _context.BlogPosts.FindAsync(id);
-            if (blogPost == null)
+            var post = await _context.Posts.FindAsync(id);
+            if (post == null)
             {
                 return NotFound();
             }
-            return View(blogPost);
+            return View(post);
         }
 
-        // POST: BlogPosts/Edit/5
+        // POST: Posts/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to, for 
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Content,DatePublished,Categories")] BlogPost blogPost)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Content,DatePublished,Categories")] Post post)
         {
-            if (id != blogPost.Id)
+            if (id != post.Id)
             {
                 return NotFound();
             }
@@ -97,12 +111,12 @@ namespace BlogPostApp.Controllers
             {
                 try
                 {
-                    _context.Update(blogPost);
+                    _context.Update(post);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!BlogPostExists(blogPost.Id))
+                    if (!PostExists(post.Id))
                     {
                         return NotFound();
                     }
@@ -113,10 +127,10 @@ namespace BlogPostApp.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(blogPost);
+            return View(post);
         }
 
-        // GET: BlogPosts/Delete/5
+        // GET: Posts/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -124,30 +138,30 @@ namespace BlogPostApp.Controllers
                 return NotFound();
             }
 
-            var blogPost = await _context.BlogPosts
+            var post = await _context.Posts
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (blogPost == null)
+            if (post == null)
             {
                 return NotFound();
             }
 
-            return View(blogPost);
+            return View(post);
         }
 
-        // POST: BlogPosts/Delete/5
+        // POST: Posts/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var blogPost = await _context.BlogPosts.FindAsync(id);
-            _context.BlogPosts.Remove(blogPost);
+            var post = await _context.Posts.FindAsync(id);
+            _context.Posts.Remove(post);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool BlogPostExists(int id)
+        private bool PostExists(int id)
         {
-            return _context.BlogPosts.Any(e => e.Id == id);
+            return _context.Posts.Any(e => e.Id == id);
         }
     }
 }

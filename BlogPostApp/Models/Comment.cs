@@ -22,9 +22,9 @@ namespace BlogPostApp.Models
         public DateTime DatePosted { get; set; }
         
         // BLOG POST FK
-        public int BlogPostId { get; set; }
+        public int PostId { get; set; }
         
         // BLOG POST
-        public virtual BlogPost BlogPost { get; set; }
+        public virtual Post Post { get; set; }
     }
 }

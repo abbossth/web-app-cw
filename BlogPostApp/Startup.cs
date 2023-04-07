@@ -1,4 +1,5 @@
 using BlogPostApp.DAL;
+using BlogPostApp.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -26,6 +27,9 @@ namespace BlogPostApp
         {
             services.AddControllersWithViews();
             // ADDING NEW DB CONTEXT
+            services.AddScoped<IPostRepository, PostRepository>();
+            services.AddScoped<ICommentRepository, CommentRepository>();
+            services.AddScoped<ILikeRepository, LikeRepository>();
             services.AddDbContext<BlogPostDbContext>(options => 
                 options.UseSqlServer(Configuration.GetConnectionString("BlogPostDb")));
         }
@@ -51,7 +55,7 @@ namespace BlogPostApp
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=BlogPosts}/{action=Index}/{id?}");
+                    pattern: "{controller=Posts}/{action=Index}/{id?}");
             });
         }
     }
